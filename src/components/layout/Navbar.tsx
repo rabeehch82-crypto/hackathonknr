@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   HeartPulse,
@@ -7,16 +7,19 @@ import {
   Sparkles,
   User,
   Stethoscope,
+  Building2,
+  FlaskConical,
+  Pill,
+  Users,
+  ChevronDown,
   Menu,
   X,
   LayoutDashboard,
   Bot,
   FileText,
   Calendar,
-  Pill,
-  Users,
   Settings,
-  QrCode,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -27,10 +30,32 @@ export function Navbar() {
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeRole, setActiveRole] = useState<"patient" | "doctor">("patient");
 
-  const isDoctorRoute = location.pathname.includes("doctor");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowRoleDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const roles = [
+    { label: "Patient Portal", href: "/dashboard", icon: User, badge: "Personal" },
+    { label: "Doctor Portal", href: "/doctor-dashboard", icon: Stethoscope, badge: "Clinical" },
+    { label: "Caregiver Network", href: "/caregiver", icon: Users, badge: "Family" },
+    { label: "Hospital Portal", href: "/hospital-dashboard", icon: Building2, badge: "Hospital" },
+    { label: "Lab Diagnostic Portal", href: "/lab-dashboard", icon: FlaskConical, badge: "Lab" },
+    { label: "Pharmacy Portal", href: "/pharmacy-dashboard", icon: Pill, badge: "Rx Supply" },
+  ];
+
+  const currentRoleObj = roles.find((r) => location.pathname === r.href) || roles[0];
+  const CurrentIcon = currentRoleObj.icon;
 
   const notifications = [
     { id: 1, title: "Pill Reminder", time: "10 mins ago", desc: "Take Metformin 500mg (1 tablet)", type: "pill" },
@@ -38,25 +63,10 @@ export function Navbar() {
     { id: 3, title: "Appointment Confirmed", time: "Yesterday", desc: "Dr. Sarah Jenkins - Tomorrow at 10:00 AM", type: "appointment" },
   ];
 
-  const navLinks = [
-    { label: "Patient Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Doctor Portal", href: "/doctor-dashboard", icon: Stethoscope },
-    { label: "AI Health Assistant", href: "/ai-assistant", icon: Bot },
-    { label: "Medical Reports (OCR)", href: "/medical-reports", icon: FileText },
-    { label: "Appointments", href: "/appointments", icon: Calendar },
-    { label: "Pill Reminders", href: "/medicine-reminder", icon: Pill },
-    { label: "Caregiver Network", href: "/caregiver", icon: Users },
-    { label: "Settings & Emergency QR", href: "/settings", icon: Settings },
-  ];
-
-  const handleRoleToggle = (role: "patient" | "doctor") => {
-    setActiveRole(role);
+  const handleSelectRole = (href: string) => {
+    setShowRoleDropdown(false);
     setMobileMenuOpen(false);
-    if (role === "doctor") {
-      navigate("/doctor-dashboard");
-    } else {
-      navigate("/dashboard");
-    }
+    navigate(href);
   };
 
   return (
@@ -65,7 +75,6 @@ export function Navbar() {
         <div className="container mx-auto flex h-16 items-center justify-between px-3 sm:px-6">
           {/* Logo & Mobile Menu Toggle */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Hamburger Button for Mobile */}
             <Button
               variant="ghost"
               size="icon"
@@ -89,40 +98,59 @@ export function Navbar() {
                 </span>
               </div>
             </Link>
-
-            {/* AI Online Pill Badge (Desktop) */}
-            <div className="hidden lg:flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3 py-1 text-xs font-medium text-teal-700 dark:text-teal-300">
-              <Sparkles className="h-3.5 w-3.5 text-teal-500 animate-spin" style={{ animationDuration: "6s" }} />
-              <span>AI Engine Active</span>
-            </div>
           </div>
 
-          {/* Quick Actions & Nav */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
-            {/* Demo Role Switcher (Desktop) */}
-            <div className="hidden sm:flex items-center rounded-xl bg-muted/80 p-1 border">
+          {/* Center/Right Role Dropdown & Quick Actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Sleek Role Switcher Dropdown */}
+            <div className="relative" ref={dropdownRef}>
               <button
-                onClick={() => handleRoleToggle("patient")}
-                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-                  !isDoctorRoute && activeRole === "patient"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-muted/70 hover:bg-muted text-foreground transition-all shadow-xs text-xs font-semibold"
               >
-                <User className="h-3.5 w-3.5" />
-                Patient
+                <CurrentIcon className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                <span className="hidden xs:inline">{currentRoleObj.label}</span>
+                <span className="xs:hidden">{currentRoleObj.badge}</span>
+                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${showRoleDropdown ? "rotate-180" : ""}`} />
               </button>
-              <button
-                onClick={() => handleRoleToggle("doctor")}
-                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-                  isDoctorRoute || activeRole === "doctor"
-                    ? "bg-teal-600 text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Stethoscope className="h-3.5 w-3.5" />
-                Doctor Portal
-              </button>
+
+              {/* Role Dropdown Menu */}
+              {showRoleDropdown && (
+                <div className="absolute right-0 mt-2 w-64 sm:w-72 rounded-2xl border bg-card p-2 shadow-2xl glass-card z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b mb-1">
+                    Select Account Role Portal
+                  </div>
+                  <div className="space-y-1">
+                    {roles.map((r) => {
+                      const Icon = r.icon;
+                      const isSelected = location.pathname === r.href;
+                      return (
+                        <button
+                          key={r.href}
+                          onClick={() => handleSelectRole(r.href)}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                            isSelected
+                              ? "bg-teal-600 text-white shadow-sm"
+                              : "text-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon className={`h-4 w-4 ${isSelected ? "text-white" : "text-teal-600"}`} />
+                            <span>{r.label}</span>
+                          </div>
+                          {isSelected ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                              {r.badge}
+                            </Badge>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Emergency SOS Button */}
@@ -174,7 +202,7 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Account Login Button */}
+            {/* Account Login */}
             <Link to="/login">
               <Button variant="outline" size="sm" className="rounded-xl gap-1.5 hidden sm:flex border-border text-xs">
                 <User className="h-3.5 w-3.5 text-teal-600" />
@@ -187,47 +215,21 @@ export function Navbar() {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden border-b bg-card/95 backdrop-blur-md p-4 space-y-4 animate-in slide-in-from-top duration-200">
-            {/* Mobile Role Switcher */}
-            <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1 border text-xs font-semibold">
-              <button
-                onClick={() => handleRoleToggle("patient")}
-                className={`py-2 rounded-lg transition-all ${
-                  !isDoctorRoute && activeRole === "patient" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground"
-                }`}
-              >
-                Patient Dashboard
-              </button>
-              <button
-                onClick={() => handleRoleToggle("doctor")}
-                className={`py-2 rounded-lg transition-all ${
-                  isDoctorRoute || activeRole === "doctor" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground"
-                }`}
-              >
-                Doctor Portal
-              </button>
-            </div>
-
-            {/* Links list */}
-            <div className="grid grid-cols-1 gap-1">
-              {navLinks.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                      isActive
-                        ? "bg-teal-500/15 text-teal-700 dark:text-teal-300"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase px-2">Select Portal</span>
+              <div className="grid grid-cols-2 gap-1.5">
+                {roles.map((r) => (
+                  <button
+                    key={r.href}
+                    onClick={() => handleSelectRole(r.href)}
+                    className={`p-2 rounded-xl text-xs font-semibold border transition-all text-left truncate ${
+                      location.pathname === r.href ? "bg-teal-600 text-white" : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    <Icon className="h-4 w-4 text-teal-600" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+                    {r.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
