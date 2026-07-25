@@ -15,20 +15,36 @@ import {
   X,
   LogOut,
   Lock,
+  Globe,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
-import { useAppStore } from "@/store";
+import { useAppStore, LANGUAGES } from "@/store";
 
 export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAppStore();
+  const { user, logout, language, setLanguage } = useAppStore();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(event.target as Node)) {
+        setShowLangDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -48,6 +64,8 @@ export function Navbar() {
   const currentRole = user?.role || "patient";
   const activeMeta = roleMeta[currentRole] || roleMeta["patient"];
   const RoleIcon = activeMeta.icon;
+
+  const currentLangObj = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
   const notifications = [
     { id: 1, title: "Pill Reminder", time: "10 mins ago", desc: "Take Metformin 500mg (1 tablet)", type: "pill" },
@@ -86,7 +104,7 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Locked Active Role & Profile Information */}
+          {/* Right Actions: Role Info, SOS, Language Switcher, Notifications & Auth */}
           <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-teal-500/10 border-teal-500/30 text-teal-800 dark:text-teal-200 text-xs font-semibold">
@@ -100,6 +118,54 @@ export function Navbar() {
                 </span>
               </div>
             ) : null}
+
+            {/* Language Switcher Dropdown */}
+            <div className="relative" ref={langRef}>
+              <button
+                onClick={() => setShowLangDropdown(!showLangDropdown)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border bg-muted/70 hover:bg-muted text-foreground transition-all text-xs font-semibold"
+                aria-label="Select Language"
+              >
+                <Globe className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                <span className="text-sm leading-none">{currentLangObj.flag}</span>
+                <span className="hidden md:inline">{currentLangObj.nativeName}</span>
+                <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${showLangDropdown ? "rotate-180" : ""}`} />
+              </button>
+
+              {showLangDropdown && (
+                <div className="absolute right-0 mt-2 w-52 rounded-2xl border bg-card p-2 shadow-2xl glass-card z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="px-3 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b mb-1 flex items-center gap-1.5">
+                    <Globe className="h-3 w-3 text-teal-500" /> Select App Language
+                  </div>
+                  <div className="space-y-0.5 max-h-64 overflow-y-auto">
+                    {LANGUAGES.map((lang) => {
+                      const isSelected = language === lang.code;
+                      return (
+                        <button
+                          key={lang.code}
+                          onClick={() => {
+                            setLanguage(lang.code);
+                            setShowLangDropdown(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                            isSelected
+                              ? "bg-teal-600 text-white shadow-sm font-bold"
+                              : "text-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">{lang.flag}</span>
+                            <span>{lang.nativeName}</span>
+                            <span className="text-[10px] opacity-70">({lang.name})</span>
+                          </div>
+                          {isSelected && <Check className="h-4 w-4" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Emergency SOS Button */}
             <Button
