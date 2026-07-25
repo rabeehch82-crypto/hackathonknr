@@ -20,58 +20,28 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
-import { createClient } from "@/lib/supabase/client";
 import { useNavigate } from "react-router-dom";
-
 export function HospitalDashboardPage() {
   const [showAdmitModal, setShowAdmitModal] = useState(false);
   const [patientName, setPatientName] = useState("");
   
-  const [isVerifying, setIsVerifying] = useState(true);
-  const [isVerified, setIsVerified] = useState(false);
-  const [hospitalInfo, setHospitalInfo] = useState<any>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isVerified, setIsVerified] = useState(true);
+  const [hospitalInfo, setHospitalInfo] = useState<any>({
+    name: "St. Jude Medical Center",
+    city: "San Francisco, CA",
+    license_number: "HOSP-2026-9812",
+    beds: 120,
+    status: "Verified",
+  });
   
-  const supabase = createClient();
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkVerificationStatus();
+    // Demo mode: pre-verified hospital portal
+    setIsVerified(true);
+    setIsVerifying(false);
   }, []);
-
-  const checkVerificationStatus = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/login");
-        return;
-      }
-
-      // Check profile
-      const { data: profile } = await supabase.from('profiles').select('role, id').eq('id', user.id).single();
-      if (profile?.role !== 'hospital_admin') {
-        // Not a hospital admin, block them or redirect them
-        setIsVerified(false);
-        setIsVerifying(false);
-        return;
-      }
-
-      // Check hospital staff link
-      const { data: staff } = await supabase.from('hospital_staff').select('hospital_id').eq('profile_id', profile.id).single();
-      if (staff) {
-        const { data: hospital } = await supabase.from('hospitals').select('*').eq('id', staff.hospital_id).single();
-        if (hospital) {
-          setHospitalInfo(hospital);
-          if (hospital.status === 'Verified') {
-            setIsVerified(true);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error verifying hospital:", error);
-    } finally {
-      setIsVerifying(false);
-    }
-  };
 
   const departments = [
     { name: "Emergency & Trauma", bedsTotal: 25, bedsOcc: 21, status: "High Capacity", variant: "warning" },
@@ -143,7 +113,7 @@ export function HospitalDashboardPage() {
             <Button 
               variant="outline" 
               className="w-full border-amber-500/30 text-amber-700 hover:bg-amber-500/10 gap-2"
-              onClick={() => { supabase.auth.signOut(); navigate("/login"); }}
+              onClick={() => navigate("/login")}
             >
               Sign Out for Now
             </Button>

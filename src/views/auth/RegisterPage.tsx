@@ -4,10 +4,11 @@ import { HeartPulse, Mail, Lock, User, Stethoscope, Users, ArrowRight, ShieldChe
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
-import { createClient } from "@/lib/supabase/client";
+import { useAppStore } from "@/store";
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const { setAuth } = useAppStore();
   const [role, setRole] = useState<"patient" | "doctor" | "caregiver" | "hospital_admin">("doctor");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,37 +26,20 @@ export function RegisterPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
     
-    try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            role: role,
-            ...(role === 'doctor' && {
-              license_number: doctorLicense || "DR-2026-8890",
-              specialty,
-            }),
-            ...(role === 'hospital_admin' && {
-              hospital_name: hospitalName,
-              city,
-              license_number: license,
-              beds,
-            })
-          }
-        }
+    setTimeout(() => {
+      setAuth({
+        id: "demo-registered-user",
+        email: email || "demo@carebridge.ai",
+        name: fullName || "Registered User",
+        role: role,
       });
-      
-      if (signUpError) throw signUpError;
-      
+
       if (role === "doctor") {
         navigate("/doctor-dashboard");
       } else if (role === "hospital_admin") {
@@ -63,11 +47,7 @@ export function RegisterPage() {
       } else {
         navigate("/dashboard");
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to create account");
-    } finally {
-      setIsLoading(false);
-    }
+    }, 400);
   };
 
   return (

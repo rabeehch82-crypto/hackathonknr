@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { useAppStore } from "@/store";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const { setAuth } = useAppStore();
   const [role, setRole] = useState<string>("patient");
   const [email, setEmail] = useState("patient@carebridge.ai");
   const [password, setPassword] = useState("Password123!");
@@ -19,6 +21,7 @@ export function LoginPage() {
     { id: "hospital", label: "Hospital", icon: Building2, route: "/hospital-dashboard" },
     { id: "lab", label: "Lab", icon: FlaskConical, route: "/lab-dashboard" },
     { id: "pharmacy", label: "Pharmacy", icon: Pill, route: "/pharmacy-dashboard" },
+    { id: "admin", label: "Admin", icon: ShieldCheck, route: "/admin-dashboard" },
   ];
 
   const handleSelectRole = (roleId: string) => {
@@ -41,11 +44,31 @@ export function LoginPage() {
     } else if (roleId === "pharmacy") {
       setEmail("pharmacy@carebridge.ai");
       setPassword("Pharmacy123!");
+    } else if (roleId === "admin") {
+      setEmail("admin@carebridge.ai");
+      setPassword("Admin123!");
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const names: Record<string, string> = {
+      patient: "Eleanor Vance (Patient)",
+      doctor: "Dr. Sarah Jenkins",
+      caregiver: "Maria Nurse (Caregiver)",
+      hospital: "St. Jude Medical Center",
+      lab: "BioTech Labs",
+      pharmacy: "HealthCare RX",
+      admin: "System Super Admin",
+    };
+
+    setAuth({
+      id: `demo-${role}`,
+      email: email,
+      name: names[role] || `${role} User`,
+      role: role,
+    });
+
     const roleObj = roles.find((r) => r.id === role);
     navigate(roleObj ? roleObj.route : "/dashboard");
   };
@@ -69,7 +92,7 @@ export function LoginPage() {
           {/* Role Selection Grid */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-foreground">Select Account Role</label>
-            <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-muted p-1 border text-xs font-semibold">
+            <div className="grid grid-cols-4 gap-1.5 rounded-xl bg-muted p-1 border text-xs font-semibold">
               {roles.map((r) => {
                 const Icon = r.icon;
                 const isSelected = role === r.id;
@@ -78,7 +101,7 @@ export function LoginPage() {
                     key={r.id}
                     type="button"
                     onClick={() => handleSelectRole(r.id)}
-                    className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg transition-all text-xs ${
+                    className={`flex items-center justify-center gap-1 py-2 px-1 rounded-lg transition-all text-xs ${
                       isSelected ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -127,7 +150,7 @@ export function LoginPage() {
               </span>
               <div className="flex items-center gap-1.5">
                 <Badge variant="teal" className="text-[10px] font-mono">
-                  {role === "doctor" ? "doctor@carebridge.ai" : email}
+                  {email}
                 </Badge>
                 <Badge variant="outline" className="text-[10px] font-mono">
                   {password}

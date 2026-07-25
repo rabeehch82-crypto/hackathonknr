@@ -19,13 +19,10 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
-import { createClient } from "@/lib/supabase/client";
-
 export function SuperAdminPage() {
   const [showAddHospitalModal, setShowAddHospitalModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const supabase = createClient();
 
   const [newHospital, setNewHospital] = useState({
     name: "",
@@ -34,87 +31,80 @@ export function SuperAdminPage() {
     beds: "100",
   });
 
-  const [hospitals, setHospitals] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [hospitals, setHospitals] = useState<any[]>([
+    {
+      id: "hosp-1",
+      name: "St. Jude Medical Center",
+      city: "San Francisco, CA",
+      license_number: "HOSP-2026-9812",
+      beds: 120,
+      status: "Verified",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "hosp-2",
+      name: "Mercy General Hospital",
+      city: "Chicago, IL",
+      license_number: "HOSP-2026-4421",
+      beds: 250,
+      status: "Pending Verification",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "hosp-3",
+      name: "Metro Health Institute",
+      city: "New York, NY",
+      license_number: "HOSP-2026-1189",
+      beds: 180,
+      status: "Verified",
+      created_at: new Date().toISOString(),
+    },
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Custom auth for Super Admin
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authCode, setAuthCode] = useState("");
   const [authError, setAuthError] = useState("");
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchHospitals();
-    }
-  }, [isAuthenticated]);
-
-  const fetchHospitals = async () => {
-    try {
-      const { data, error } = await supabase.from('hospitals').select('*').order('created_at', { ascending: false });
-      if (error) throw error;
-      setHospitals(data || []);
-    } catch (err: any) {
-      showToast("Error loading hospitals: " + err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleVerifyHospital = async (id: string, action: "verify" | "reject" | "revoke") => {
+  const handleVerifyHospital = (id: string, action: "verify" | "reject" | "revoke") => {
     let newStatus = "Pending Verification";
     if (action === "verify") newStatus = "Verified";
     if (action === "reject") newStatus = "Rejected";
 
-    try {
-      const { error } = await supabase
-        .from('hospitals')
-        .update({ status: newStatus })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setHospitals((prev) =>
-        prev.map((h) => {
-          if (h.id !== id) return h;
-          return { ...h, status: newStatus };
-        })
-      );
-      const hospName = hospitals.find((h) => h.id === id)?.name;
-      showToast(`${hospName} status updated to: ${newStatus.toUpperCase()}`);
-    } catch (err: any) {
-      showToast("Failed to update status: " + err.message);
-    }
+    setHospitals((prev) =>
+      prev.map((h) => {
+        if (h.id !== id) return h;
+        return { ...h, status: newStatus };
+      })
+    );
+    const hospName = hospitals.find((h) => h.id === id)?.name;
+    showToast(`${hospName} status updated to: ${newStatus.toUpperCase()}`);
   };
 
-  const handleAddHospitalSubmit = async (e: React.FormEvent) => {
+  const handleAddHospitalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newHospital.name || !newHospital.city) return;
     
-    try {
-      const { data, error } = await supabase.from('hospitals').insert([{
-        name: newHospital.name,
-        city: newHospital.city,
-        license_number: newHospital.license || "HOSP-" + Math.floor(1000 + Math.random() * 9000),
-        beds: parseInt(newHospital.beds) || 100,
-        status: "Pending Verification",
-      }]).select();
+    const created = {
+      id: "hosp-" + Date.now(),
+      name: newHospital.name,
+      city: newHospital.city,
+      license_number: newHospital.license || "HOSP-" + Math.floor(1000 + Math.random() * 9000),
+      beds: parseInt(newHospital.beds) || 100,
+      status: "Pending Verification",
+      created_at: new Date().toISOString(),
+    };
 
-      if (error) throw error;
-
-      if (data && data[0]) {
-        setHospitals((prev) => [data[0], ...prev]);
-        setShowAddHospitalModal(false);
-        setNewHospital({ name: "", city: "", license: "", beds: "100" });
-        showToast(`${data[0].name} registered manually for Super Admin verification!`);
-      }
-    } catch (err: any) {
-      showToast("Failed to add hospital: " + err.message);
-    }
+    setHospitals((prev) => [created, ...prev]);
+    showToast(`Hospital "${newHospital.name}" added successfully!`);
+    setNewHospital({ name: "", city: "", license: "", beds: "100" });
+    setShowAddHospitalModal(false);
   };
 
   const filteredHospitals = hospitals.filter(

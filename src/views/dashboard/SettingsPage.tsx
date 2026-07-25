@@ -14,8 +14,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
+import { useAppStore } from "@/store";
 
 export function SettingsPage() {
+  const { user } = useAppStore();
+  const isPatient = (user?.role || "patient") === "patient";
+
   const [fontSize, setFontSize] = useState("large");
   const [highContrast, setHighContrast] = useState(false);
   const [voiceSpeed, setVoiceSpeed] = useState("normal");
@@ -27,20 +31,21 @@ export function SettingsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
-              <SettingsIcon className="h-7 w-7 text-teal-600" /> Account & Emergency QR Card
+              <SettingsIcon className="h-7 w-7 text-teal-600" /> Account Settings
             </h1>
             <Badge variant="teal" className="gap-1">
               <Sparkles className="h-3 w-3" /> Senior Accessibility Controls
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage your Emergency Medical ID QR code, accessibility preferences, and account security.
+            Manage your {isPatient ? "Emergency Medical ID QR code, " : ""}accessibility preferences, and account security.
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Emergency Medical QR Card */}
+        {/* Emergency Medical QR Card - Exclusively for Patients */}
+        {isPatient && (
         <Card className="p-4 border-rose-500/40 bg-gradient-to-br from-rose-500/10 via-card to-card">
           <CardHeader className="pb-3 border-b">
             <div className="flex items-center justify-between">
@@ -112,6 +117,7 @@ export function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+        )}
 
         {/* Accessibility & Voice Settings */}
         <Card className="p-4 border-teal-500/30">

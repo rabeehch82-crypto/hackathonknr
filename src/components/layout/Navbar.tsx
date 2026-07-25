@@ -4,7 +4,6 @@ import {
   HeartPulse,
   Bell,
   ShieldAlert,
-  Sparkles,
   User,
   Stethoscope,
   Building2,
@@ -12,69 +11,49 @@ import {
   Pill,
   Users,
   ShieldCheck,
-  ChevronDown,
   Menu,
   X,
-  Check,
+  LogOut,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { useAppStore } from "@/store";
-import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAppStore();
-  const supabase = createClient();
+  const { user, logout } = useAppStore();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
-  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const roleMeta: Record<string, { label: string; icon: any; badge: string }> = {
+    patient: { label: "Patient Portal", icon: User, badge: "Patient" },
+    doctor: { label: "Doctor Portal", icon: Stethoscope, badge: "Clinical Doctor" },
+    caregiver: { label: "Caregiver Portal", icon: Users, badge: "Caregiver" },
+    hospital: { label: "Hospital Portal", icon: Building2, badge: "Hospital Admin" },
+    lab: { label: "Lab Diagnostic Portal", icon: FlaskConical, badge: "Lab Tech" },
+    pharmacy: { label: "Pharmacy Portal", icon: Pill, badge: "Pharmacist" },
+    admin: { label: "Super Admin Panel", icon: ShieldCheck, badge: "Super Admin" },
+  };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowRoleDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const roles = [
-    { label: "Patient Portal", href: "/dashboard", icon: User, badge: "Personal" },
-    { label: "Doctor Portal", href: "/doctor-dashboard", icon: Stethoscope, badge: "Clinical" },
-    { label: "Caregiver Network", href: "/caregiver", icon: Users, badge: "Family" },
-    { label: "Hospital Portal", href: "/hospital-dashboard", icon: Building2, badge: "Hospital" },
-    { label: "Lab Diagnostic Portal", href: "/lab-dashboard", icon: FlaskConical, badge: "Lab" },
-    { label: "Pharmacy Portal", href: "/pharmacy-dashboard", icon: Pill, badge: "Rx Supply" },
-    { label: "Super Admin Panel", href: "/admin-dashboard", icon: ShieldCheck, badge: "Master" },
-  ];
-
-  const currentRoleObj = roles.find((r) => location.pathname === r.href) || roles[0];
-  const CurrentIcon = currentRoleObj.icon;
+  const currentRole = user?.role || "patient";
+  const activeMeta = roleMeta[currentRole] || roleMeta["patient"];
+  const RoleIcon = activeMeta.icon;
 
   const notifications = [
     { id: 1, title: "Pill Reminder", time: "10 mins ago", desc: "Take Metformin 500mg (1 tablet)", type: "pill" },
     { id: 2, title: "Lab Report Summary", time: "1 hour ago", desc: "AI analyzed your Blood Test. All parameters normal.", type: "ai" },
     { id: 3, title: "Appointment Confirmed", time: "Yesterday", desc: "Dr. Sarah Jenkins - Tomorrow at 10:00 AM", type: "appointment" },
   ];
-
-  const handleSelectRole = (href: string) => {
-    setShowRoleDropdown(false);
-    setMobileMenuOpen(false);
-    navigate(href);
-  };
 
   return (
     <>
@@ -107,58 +86,20 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Center/Right Role Dropdown & Quick Actions */}
+          {/* Locked Active Role & Profile Information */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Sleek Role Switcher Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-muted/70 hover:bg-muted text-foreground transition-all shadow-xs text-xs font-semibold"
-              >
-                <CurrentIcon className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
-                <span className="hidden xs:inline">{currentRoleObj.label}</span>
-                <span className="xs:hidden">{currentRoleObj.badge}</span>
-                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${showRoleDropdown ? "rotate-180" : ""}`} />
-              </button>
-
-              {/* Role Dropdown Menu */}
-              {showRoleDropdown && (
-                <div className="absolute right-0 mt-2 w-64 sm:w-72 rounded-2xl border bg-card p-2 shadow-2xl glass-card z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b mb-1">
-                    Select Account Role Portal
-                  </div>
-                  <div className="space-y-1">
-                    {roles.map((r) => {
-                      const Icon = r.icon;
-                      const isSelected = location.pathname === r.href;
-                      return (
-                        <button
-                          key={r.href}
-                          onClick={() => handleSelectRole(r.href)}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                            isSelected
-                              ? "bg-teal-600 text-white shadow-sm"
-                              : "text-foreground hover:bg-muted/80"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <Icon className={`h-4 w-4 ${isSelected ? "text-white" : "text-teal-600"}`} />
-                            <span>{r.label}</span>
-                          </div>
-                          {isSelected ? (
-                            <Check className="h-4 w-4" />
-                          ) : (
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                              {r.badge}
-                            </Badge>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
+            {user ? (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-teal-500/10 border-teal-500/30 text-teal-800 dark:text-teal-200 text-xs font-semibold">
+                <RoleIcon className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                <span className="hidden sm:inline font-bold">{user.name || activeMeta.label}</span>
+                <Badge variant="teal" className="text-[10px] px-1.5 py-0">
+                  {activeMeta.badge}
+                </Badge>
+                <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 ml-1 bg-background/50 px-1.5 py-0.5 rounded-md border">
+                  <Lock className="h-2.5 w-2.5" /> Locked
+                </span>
+              </div>
+            ) : null}
 
             {/* Emergency SOS Button */}
             <Button
@@ -209,19 +150,20 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Account Login / Logout */}
+            {/* Log Out / Log In */}
             {user ? (
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleLogout}
-                className="rounded-xl gap-1.5 hidden sm:flex border-border text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                className="rounded-xl gap-1.5 flex border-border text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
               >
-                <span>Log Out</span>
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Log Out</span>
               </Button>
             ) : (
               <Link to="/login">
-                <Button variant="outline" size="sm" className="rounded-xl gap-1.5 hidden sm:flex border-border text-xs">
+                <Button variant="outline" size="sm" className="rounded-xl gap-1.5 flex border-border text-xs">
                   <User className="h-3.5 w-3.5 text-teal-600" />
                   <span>Log In</span>
                 </Button>
@@ -229,28 +171,6 @@ export function Navbar() {
             )}
           </div>
         </div>
-
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-b bg-card/95 backdrop-blur-md p-4 space-y-4 animate-in slide-in-from-top duration-200">
-            <div className="space-y-1">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase px-2">Select Portal</span>
-              <div className="grid grid-cols-2 gap-1.5">
-                {roles.map((r) => (
-                  <button
-                    key={r.href}
-                    onClick={() => handleSelectRole(r.href)}
-                    className={`p-2 rounded-xl text-xs font-semibold border transition-all text-left truncate ${
-                      location.pathname === r.href ? "bg-teal-600 text-white" : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Emergency SOS Modal */}

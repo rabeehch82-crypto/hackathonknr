@@ -34,15 +34,13 @@ export default function AppRouter() {
 
         {/* Dashboard Routes with Shared Layout (Protected) */}
         <Route element={<DashboardLayout />}>
-          {/* Unprotected Admin Route */}
-          <Route path="/admin-dashboard" element={<SuperAdminPage />} />
-          
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/doctor-dashboard" element={<DoctorDashboardPage />} />
             <Route path="/hospital-dashboard" element={<HospitalDashboardPage />} />
             <Route path="/lab-dashboard" element={<LabDashboardPage />} />
             <Route path="/pharmacy-dashboard" element={<PharmacyDashboardPage />} />
+            <Route path="/admin-dashboard" element={<SuperAdminPage />} />
             <Route path="/ai-assistant" element={<AIAssistantPage />} />
             <Route path="/medical-reports" element={<MedicalReportsPage />} />
             <Route path="/appointments" element={<AppointmentsPage />} />
