@@ -7,6 +7,8 @@ import {
   Plus,
   Search,
   CheckCircle2,
+  XCircle,
+  Stethoscope,
   Clock,
   Sparkles,
   ChevronRight,
@@ -35,6 +37,26 @@ export function HospitalDashboardPage() {
     { name: "Clara Oswald", age: 61, dept: "Emergency Room", bed: "ER-02", priority: "Moderate", time: "11:00 AM Today" },
   ];
 
+  const [staffDoctors, setStaffDoctors] = useState([
+    { id: "sd1", name: "Dr. Sarah Jenkins", specialty: "Cardiology", status: "Hospital Verified", variant: "success" },
+    { id: "sd2", name: "Dr. Alan Grant", specialty: "Pulmonology", status: "Pending Verification", variant: "warning" },
+    { id: "sd3", name: "Dr. Lisa Cuddy", specialty: "Endocrinology", status: "Pending Verification", variant: "warning" },
+  ]);
+
+  const handleVerifyStaff = (id: string, action: "verify" | "reject") => {
+    setStaffDoctors((prev) =>
+      prev.map((d) =>
+        d.id === id
+          ? {
+              ...d,
+              status: action === "verify" ? "Hospital Verified" : "Rejected",
+              variant: action === "verify" ? "success" : "destructive",
+            }
+          : d
+      )
+    );
+  };
+
   const handleAdmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!patientName) return;
@@ -55,7 +77,7 @@ export function HospitalDashboardPage() {
             <Badge variant="teal">Hospital Management</Badge>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Real-time bed occupancy, emergency room triage, and patient admission registry.
+            Real-time bed occupancy, emergency room triage, and physician staff credentialing.
           </p>
         </div>
 
@@ -90,10 +112,14 @@ export function HospitalDashboardPage() {
         <Card hoverable className="p-4 border-l-4 border-l-cyan-500">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase">On-Duty Doctors</span>
-            <Users className="h-5 w-5 text-cyan-500" />
+            <Stethoscope className="h-5 w-5 text-cyan-500" />
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-foreground">18 Physicians</div>
-          <span className="text-[11px] text-muted-foreground mt-1 block">Across 6 Departments</span>
+          <div className="mt-2 text-3xl font-extrabold text-foreground">
+            {staffDoctors.filter((d) => d.status === "Hospital Verified").length} / {staffDoctors.length} Staff
+          </div>
+          <span className="text-[11px] text-amber-600 font-medium mt-1 block">
+            {staffDoctors.filter((d) => d.status === "Pending Verification").length} Pending Verification
+          </span>
         </Card>
 
         <Card hoverable className="p-4 border-l-4 border-l-emerald-500">
@@ -105,6 +131,61 @@ export function HospitalDashboardPage() {
           <span className="text-[11px] text-emerald-600 font-medium mt-1 block">Bed Turnover Ready</span>
         </Card>
       </div>
+
+      {/* Hospital Staff Doctor Verification */}
+      <Card className="p-2 border-teal-500/30">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Stethoscope className="h-5 w-5 text-teal-600" /> Hospital Staff Doctor Verification
+              </CardTitle>
+              <CardDescription className="text-xs">Approve attending physicians and grant hospital EMR permissions</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {staffDoctors.map((doc) => (
+              <div key={doc.id} className="p-4 rounded-2xl border glass-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-bold text-foreground">{doc.name}</h4>
+                    <Badge variant={doc.variant as any}>{doc.status}</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">Department: <strong>{doc.specialty}</strong></p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {doc.status === "Pending Verification" ? (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => handleVerifyStaff(doc.id, "verify")}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs gap-1.5 h-9 font-bold shadow-sm"
+                      >
+                        <CheckCircle2 className="h-4 w-4" /> Verify Hospital Credentials
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleVerifyStaff(doc.id, "reject")}
+                        className="border-rose-500/40 text-rose-600 hover:bg-rose-500/10 rounded-xl text-xs gap-1.5 h-9"
+                      >
+                        <XCircle className="h-4 w-4" /> Reject
+                      </Button>
+                    </>
+                  ) : (
+                    <Badge variant="success" className="gap-1 px-3 py-1 text-xs">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Verified Staff
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Ward Status & Admission Registry */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
