@@ -77,7 +77,7 @@ export function Navbar() {
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-base sm:text-lg leading-none tracking-tight text-foreground flex items-center gap-1">
-                  CareBridge <span className="gradient-heading">AI</span>
+                  CareBridge
                 </span>
                 <span className="text-[9px] sm:text-[10px] font-medium text-muted-foreground tracking-wider uppercase hidden xs:inline">
                   Healthcare Intelligence

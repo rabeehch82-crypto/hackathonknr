@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CareBridge AI — Healthcare Platform",
-  description: "Senior-friendly AI healthcare coordination platform.",
+  title: "CareBridge — Healthcare Platform",
+  description: "Senior-friendly healthcare coordination platform.",
 };
 
 export default function RootLayout({

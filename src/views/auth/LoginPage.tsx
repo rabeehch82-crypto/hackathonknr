@@ -82,7 +82,7 @@ export function LoginPage() {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-teal-600 to-cyan-400 text-white shadow-md shadow-teal-500/30 mb-2">
             <HeartPulse className="h-7 w-7 animate-pulse" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Sign In to CareBridge AI</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">Sign In to CareBridge</CardTitle>
           <CardDescription className="text-sm">
             Access your healthcare portal, AI assistant, and records.
           </CardDescription>

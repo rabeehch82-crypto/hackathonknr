@@ -11,6 +11,11 @@ import {
   Sparkles,
   ChevronRight,
   ShieldCheck,
+  Video,
+  Mic,
+  PhoneOff,
+  Activity,
+  Heart,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +25,7 @@ import { Modal } from "@/components/ui/Modal";
 
 export function DoctorDashboardPage() {
   const [showRxModal, setShowRxModal] = useState(false);
+  const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState("Eleanor Vance");
   const [rxForm, setRxForm] = useState({
     medication: "",
@@ -98,17 +104,21 @@ export function DoctorDashboardPage() {
             <span className="text-xs font-semibold text-muted-foreground uppercase">Today's Appointments</span>
             <Users className="h-5 w-5 text-teal-500" />
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-foreground">8 Patients</div>
-          <span className="text-[11px] text-muted-foreground mt-1 block">3 Virtual • 5 In-clinic</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold">8 Patients</span>
+            <span className="text-xs text-muted-foreground">3 Virtual • 5 In-clinic</span>
+          </div>
         </Card>
 
         <Card hoverable className="p-4 border-l-4 border-l-rose-500">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase">High Risk Triage</span>
+            <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 uppercase">High Risk Triage</span>
             <AlertTriangle className="h-5 w-5 text-rose-500" />
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-foreground">2 Flagged</div>
-          <span className="text-[11px] text-rose-600 font-medium mt-1 block">Requires immediate review</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">2 Flagged</span>
+            <span className="text-xs text-rose-600/80 font-medium">Requires immediate review</span>
+          </div>
         </Card>
 
         <Card hoverable className="p-4 border-l-4 border-l-cyan-500">
@@ -116,57 +126,69 @@ export function DoctorDashboardPage() {
             <span className="text-xs font-semibold text-muted-foreground uppercase">OCR Scans Pending</span>
             <FileText className="h-5 w-5 text-cyan-500" />
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-foreground">4 Lab Reports</div>
-          <span className="text-[11px] text-muted-foreground mt-1 block">AI Summaries Ready</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold">4 Lab Reports</span>
+            <span className="text-xs text-muted-foreground">AI Summaries Ready</span>
+          </div>
         </Card>
 
         <Card hoverable className="p-4 border-l-4 border-l-emerald-500">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase">Rx Issued Today</span>
-            <ShieldCheck className="h-5 w-5 text-emerald-500" />
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
           </div>
-          <div className="mt-2 text-3xl font-extrabold text-foreground">5 Prescriptions</div>
-          <span className="text-[11px] text-emerald-600 font-medium mt-1 block">Synced to pharmacy</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold">5 Prescriptions</span>
+            <span className="text-xs text-emerald-600 font-medium">Synced to pharmacy</span>
+          </div>
         </Card>
       </div>
 
-      {/* Patient Queue & Clinical Triage */}
-      <Card className="p-2">
-        <CardHeader className="pb-4">
+      {/* Patient Queue & Triage Table */}
+      <Card className="border-teal-500/20">
+        <CardHeader className="pb-3 border-b">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Users className="h-5 w-5 text-teal-600" /> Patient Queue & AI Risk Triage
               </CardTitle>
-              <CardDescription className="text-xs">Prioritized by real-time vital metrics and AI risk score</CardDescription>
+              <CardDescription className="text-xs">
+                Prioritized by real-time vital metrics and AI risk score
+              </CardDescription>
             </div>
-            <Input
-              placeholder="Search patient name..."
-              icon={<Search className="h-4 w-4" />}
-              className="w-full sm:w-64 text-xs"
-            />
+
+            <div className="relative w-full sm:w-64">
+              <Input
+                placeholder="Search patient name..."
+                icon={<Search className="h-4 w-4" />}
+                className="h-9 text-xs"
+              />
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="pt-4">
           <div className="space-y-3">
             {patients.map((pat, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-2xl border bg-card hover:border-teal-500/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card"
+                className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border bg-card/60 hover:bg-muted/50 transition-all glass-card"
               >
-                <div className="flex items-start gap-3">
-                  <div className="h-11 w-11 rounded-full bg-teal-500/15 text-teal-700 dark:text-teal-300 font-bold flex items-center justify-center text-sm shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 font-bold flex items-center justify-center shrink-0 border border-teal-500/20">
                     {pat.name.split(" ").map((n) => n[0]).join("")}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-bold text-foreground">{pat.name} ({pat.age} yrs)</h4>
+                      <h4 className="font-bold text-sm text-foreground">{pat.name} ({pat.age} yrs)</h4>
                       <Badge variant={pat.riskColor as any}>{pat.risk}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">{pat.condition}</p>
-                    <div className="flex items-center gap-4 text-[11px] text-muted-foreground mt-2">
-                      <span>BP: <strong>{pat.bp}</strong></span>
-                      <span>Time: <strong>{pat.time}</strong></span>
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-1">
+                      <span><strong>BP:</strong> {pat.bp}</span>
+                      <span>•</span>
+                      <span><strong>Time:</strong> {pat.time}</span>
+                      <span>•</span>
                       <span className="flex items-center gap-1 text-teal-600 font-medium">
                         <Sparkles className="h-3 w-3" /> {pat.lastReport}
                       </span>
@@ -186,7 +208,14 @@ export function DoctorDashboardPage() {
                   >
                     <Plus className="h-3.5 w-3.5 text-teal-600" /> Write Rx
                   </Button>
-                  <Button size="sm" className="h-9 text-xs bg-teal-600 hover:bg-teal-700 text-white rounded-xl gap-1">
+                  <Button 
+                    size="sm" 
+                    onClick={() => {
+                      setSelectedPatient(pat.name);
+                      setShowConsultationModal(true);
+                    }}
+                    className="h-9 text-xs bg-teal-600 hover:bg-teal-700 text-white rounded-xl gap-1"
+                  >
                     Start Consultation <ChevronRight className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -195,6 +224,66 @@ export function DoctorDashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Telehealth Consultation Modal */}
+      <Modal
+        isOpen={showConsultationModal}
+        onClose={() => setShowConsultationModal(false)}
+        title={`Live Telehealth Consultation - ${selectedPatient}`}
+        description="Encrypted WebRTC Clinical Room with Real-Time AI Vitals Monitoring."
+      >
+        <div className="space-y-4">
+          <div className="relative h-52 w-full rounded-2xl bg-neutral-900 overflow-hidden flex items-center justify-center border shadow-inner">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
+            <div className="text-center space-y-2 z-10">
+              <div className="mx-auto h-16 w-16 rounded-full bg-teal-500/20 border-2 border-teal-400 text-teal-300 flex items-center justify-center animate-pulse">
+                <Video className="h-8 w-8" />
+              </div>
+              <p className="text-white text-sm font-bold">{selectedPatient} is Connected</p>
+              <Badge variant="teal" className="gap-1 text-[10px]">
+                <Activity className="h-3 w-3 animate-pulse text-emerald-400" /> HD Live Stream Active
+              </Badge>
+            </div>
+
+            {/* Simulated Vitals HUD */}
+            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-[11px] font-mono bg-black/60 backdrop-blur-md p-2 rounded-xl border border-white/10">
+              <span className="flex items-center gap-1 text-rose-400 font-bold">
+                <Heart className="h-3.5 w-3.5 animate-pulse" /> 76 BPM
+              </span>
+              <span className="text-cyan-300">BP 138/86</span>
+              <span className="text-emerald-400">SpO2 98%</span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-xs text-teal-800 dark:text-teal-200">
+            <p className="font-bold flex items-center gap-1.5 mb-1">
+              <Sparkles className="h-3.5 w-3.5 text-teal-600" /> Clinical AI Assist Summary:
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              Patient reports mild fatigue following morning medication. Vitals are within acceptable safe ranges. Recommendation: Review potassium and lipid levels.
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              onClick={() => {
+                setShowConsultationModal(false);
+                setShowRxModal(true);
+              }}
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl h-11 text-xs gap-1.5"
+            >
+              <Plus className="h-4 w-4" /> Issue Rx & Notes
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => setShowConsultationModal(false)}
+              className="rounded-xl h-11 text-xs gap-1.5"
+            >
+              <PhoneOff className="h-4 w-4" /> End Call
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Prescription Writer Modal */}
       <Modal

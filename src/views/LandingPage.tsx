@@ -102,7 +102,7 @@ export function LandingPage() {
             <HeartPulse className="h-6 w-6 animate-pulse" />
           </div>
           <span className="font-extrabold text-2xl tracking-tight text-foreground flex items-center gap-1.5">
-            CareBridge <span className="gradient-heading">AI</span>
+            CareBridge
           </span>
         </div>
         <div className="flex items-center gap-3">
