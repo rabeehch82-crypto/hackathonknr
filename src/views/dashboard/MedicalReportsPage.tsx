@@ -1,4 +1,4 @@
-export default function MedicalReportsPage() {
+export function MedicalReportsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>

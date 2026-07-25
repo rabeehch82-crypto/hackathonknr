@@ -1,4 +1,4 @@
-export default function AppointmentsPage() {
+export function AppointmentsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>

@@ -1,4 +1,4 @@
-export default function MedicineReminderPage() {
+export function MedicineReminderPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>

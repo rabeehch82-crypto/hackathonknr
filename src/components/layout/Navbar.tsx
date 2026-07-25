@@ -1,20 +1,20 @@
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center px-4">
         <div className="mr-4 hidden md:flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
+          <Link to="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">
               HackathonKNR
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link
-              href="/dashboard"
+              to="/dashboard"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >
               Dashboard
@@ -30,10 +30,10 @@ export function Navbar() {
             {/* Search or other elements could go here */}
           </div>
           <nav className="flex items-center space-x-2">
-            <Link href="/login">
+            <Link to="/login">
               <Button variant="ghost">Log in</Button>
             </Link>
-            <Link href="/register">
+            <Link to="/register">
               <Button>Sign Up</Button>
             </Link>
           </nav>

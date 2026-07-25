@@ -1,4 +1,4 @@
-export default function CaregiverPage() {
+export function CaregiverPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>

@@ -1,4 +1,4 @@
-export default function UserDashboardPage() {
+export function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
