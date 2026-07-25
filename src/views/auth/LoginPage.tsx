@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { createClient } from "@/lib/supabase/client";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ export function LoginPage() {
     { id: "pharmacy", label: "Pharmacy", icon: Pill, route: "/pharmacy-dashboard" },
   ];
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = createClient();
+
   const handleSelectRole = (roleId: string) => {
     setRole(roleId);
     if (roleId === "patient") setEmail("patient@carebridge.ai");
@@ -31,10 +36,26 @@ export function LoginPage() {
     else if (roleId === "pharmacy") setEmail("pharmacy@carebridge.ai");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const roleObj = roles.find((r) => r.id === role);
-    navigate(roleObj ? roleObj.route : "/dashboard");
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (signInError) throw signInError;
+      
+      const roleObj = roles.find((r) => r.id === role);
+      navigate(roleObj ? roleObj.route : "/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -112,11 +133,18 @@ export function LoginPage() {
               <Badge variant="teal" className="text-[10px]">Password123!</Badge>
             </div>
 
+            {error && (
+              <div className="p-3 rounded-xl bg-destructive/15 text-destructive text-sm border border-destructive/20">
+                {error}
+              </div>
+            )}
+
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full h-11 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold rounded-xl shadow-lg shadow-teal-500/25 gap-2"
             >
-              Sign In to {roles.find((r) => r.id === role)?.label} Portal <ArrowRight className="h-4 w-4" />
+              {isLoading ? "Signing In..." : `Sign In to ${roles.find((r) => r.id === role)?.label} Portal`} <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
         </CardContent>

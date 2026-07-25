@@ -4,6 +4,7 @@ import { HeartPulse, Mail, Lock, User, Stethoscope, Users, ArrowRight, ShieldChe
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
+import { createClient } from "@/lib/supabase/client";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -12,12 +13,39 @@ export function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = createClient();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (role === "doctor") {
-      navigate("/doctor-dashboard");
-    } else {
-      navigate("/dashboard");
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: role,
+          }
+        }
+      });
+      
+      if (signUpError) throw signUpError;
+      
+      // Usually users need to verify email, but we'll redirect them for now
+      if (role === "doctor") {
+        navigate("/doctor-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to create account");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,11 +140,18 @@ export function RegisterPage() {
               <span>By signing up, you agree to our Terms of Service and HIPAA Privacy Policy.</span>
             </div>
 
+            {error && (
+              <div className="p-3 rounded-xl bg-destructive/15 text-destructive text-sm border border-destructive/20">
+                {error}
+              </div>
+            )}
+
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full h-11 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold rounded-xl shadow-lg shadow-teal-500/25 gap-2"
             >
-              Create Account <ArrowRight className="h-4 w-4" />
+              {isLoading ? "Creating Account..." : "Create Account"} <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
         </CardContent>

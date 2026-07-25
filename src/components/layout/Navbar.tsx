@@ -20,14 +20,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
+import { useAppStore } from "@/store";
+import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAppStore();
+  const supabase = createClient();
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -199,13 +209,24 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Account Login */}
-            <Link to="/login">
-              <Button variant="outline" size="sm" className="rounded-xl gap-1.5 hidden sm:flex border-border text-xs">
-                <User className="h-3.5 w-3.5 text-teal-600" />
-                <span>Log In</span>
+            {/* Account Login / Logout */}
+            {user ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleLogout}
+                className="rounded-xl gap-1.5 hidden sm:flex border-border text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <span>Log Out</span>
               </Button>
-            </Link>
+            ) : (
+              <Link to="/login">
+                <Button variant="outline" size="sm" className="rounded-xl gap-1.5 hidden sm:flex border-border text-xs">
+                  <User className="h-3.5 w-3.5 text-teal-600" />
+                  <span>Log In</span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 

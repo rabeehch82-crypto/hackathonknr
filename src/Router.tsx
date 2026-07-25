@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+// Auth Components
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+
 // Layouts
 import { DashboardLayout } from "./views/layout/DashboardLayout";
 
@@ -29,20 +32,22 @@ export default function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Dashboard Routes with Shared Layout */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/doctor-dashboard" element={<DoctorDashboardPage />} />
-          <Route path="/hospital-dashboard" element={<HospitalDashboardPage />} />
-          <Route path="/lab-dashboard" element={<LabDashboardPage />} />
-          <Route path="/pharmacy-dashboard" element={<PharmacyDashboardPage />} />
-          <Route path="/admin-dashboard" element={<SuperAdminPage />} />
-          <Route path="/ai-assistant" element={<AIAssistantPage />} />
-          <Route path="/medical-reports" element={<MedicalReportsPage />} />
-          <Route path="/appointments" element={<AppointmentsPage />} />
-          <Route path="/medicine-reminder" element={<MedicineReminderPage />} />
-          <Route path="/caregiver" element={<CaregiverPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+        {/* Dashboard Routes with Shared Layout (Protected) */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/doctor-dashboard" element={<DoctorDashboardPage />} />
+            <Route path="/hospital-dashboard" element={<HospitalDashboardPage />} />
+            <Route path="/lab-dashboard" element={<LabDashboardPage />} />
+            <Route path="/pharmacy-dashboard" element={<PharmacyDashboardPage />} />
+            <Route path="/admin-dashboard" element={<SuperAdminPage />} />
+            <Route path="/ai-assistant" element={<AIAssistantPage />} />
+            <Route path="/medical-reports" element={<MedicalReportsPage />} />
+            <Route path="/appointments" element={<AppointmentsPage />} />
+            <Route path="/medicine-reminder" element={<MedicineReminderPage />} />
+            <Route path="/caregiver" element={<CaregiverPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

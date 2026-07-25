@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AppRouter from "@/Router";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export default function CatchAllRoute() {
   const [mounted, setMounted] = useState(false);
@@ -14,5 +15,9 @@ export default function CatchAllRoute() {
     return null;
   }
 
-  return <AppRouter />;
+  return (
+    <AuthProvider>
+      <AppRouter />
+    </AuthProvider>
+  );
 }
