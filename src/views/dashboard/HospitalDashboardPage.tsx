@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Building2,
   Users,
@@ -13,16 +13,65 @@ import {
   Sparkles,
   ChevronRight,
   ShieldAlert,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { createClient } from "@/lib/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export function HospitalDashboardPage() {
   const [showAdmitModal, setShowAdmitModal] = useState(false);
   const [patientName, setPatientName] = useState("");
+  
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
+  const [hospitalInfo, setHospitalInfo] = useState<any>(null);
+  
+  const supabase = createClient();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    checkVerificationStatus();
+  }, []);
+
+  const checkVerificationStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
+      // Check profile
+      const { data: profile } = await supabase.from('profiles').select('role, id').eq('id', user.id).single();
+      if (profile?.role !== 'hospital_admin') {
+        // Not a hospital admin, block them or redirect them
+        setIsVerified(false);
+        setIsVerifying(false);
+        return;
+      }
+
+      // Check hospital staff link
+      const { data: staff } = await supabase.from('hospital_staff').select('hospital_id').eq('profile_id', profile.id).single();
+      if (staff) {
+        const { data: hospital } = await supabase.from('hospitals').select('*').eq('id', staff.hospital_id).single();
+        if (hospital) {
+          setHospitalInfo(hospital);
+          if (hospital.status === 'Verified') {
+            setIsVerified(true);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error verifying hospital:", error);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   const departments = [
     { name: "Emergency & Trauma", bedsTotal: 25, bedsOcc: 21, status: "High Capacity", variant: "warning" },
@@ -64,6 +113,45 @@ export function HospitalDashboardPage() {
     setShowAdmitModal(false);
     setPatientName("");
   };
+
+  if (isVerifying) {
+    return (
+      <div className="flex flex-col min-h-[60vh] items-center justify-center space-y-4">
+        <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
+        <p className="text-muted-foreground font-semibold">Verifying credentials...</p>
+      </div>
+    );
+  }
+
+  if (!isVerified) {
+    return (
+      <div className="flex flex-col min-h-[60vh] items-center justify-center p-4">
+        <Card className="w-full max-w-md border-amber-500/30 bg-amber-500/5 shadow-xl glass-card text-center">
+          <CardHeader className="space-y-4">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/20 text-amber-600">
+              <Clock className="h-8 w-8" />
+            </div>
+            <CardTitle className="text-xl">Registration Pending</CardTitle>
+            <CardDescription className="text-sm">
+              Your hospital registration ({hospitalInfo?.name || "Unknown"}) is currently pending verification from the Super Admin.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-6">
+              You will gain full access to the Hospital Dashboard, Bed Management, and Staff Credentialing once your license is approved.
+            </p>
+            <Button 
+              variant="outline" 
+              className="w-full border-amber-500/30 text-amber-700 hover:bg-amber-500/10 gap-2"
+              onClick={() => { supabase.auth.signOut(); navigate("/login"); }}
+            >
+              Sign Out for Now
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
