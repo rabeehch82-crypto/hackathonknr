@@ -3,18 +3,13 @@ import {
   FileText,
   UploadCloud,
   Sparkles,
-  Eye,
   Download,
-  Search,
-  CheckCircle2,
-  AlertCircle,
   FileCode,
   Tag,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Input } from "@/components/ui/Input";
 
 export function MedicalReportsPage() {
   const [isUploading, setIsUploading] = useState(false);
@@ -67,19 +62,19 @@ export function MedicalReportsPage() {
   const active = reports[selectedReport];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 sm:pb-6">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
-              <FileText className="h-7 w-7 text-teal-600" /> Medical Reports & OCR AI Summarizer
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+              <FileText className="h-6 w-6 sm:h-7 sm:w-7 text-teal-600 shrink-0" /> Medical Reports & OCR AI Summarizer
             </h1>
-            <Badge variant="teal" className="gap-1">
+            <Badge variant="teal" className="gap-1 text-[11px]">
               <Sparkles className="h-3 w-3" /> Vision OCR + GPT-4o
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Upload medical scans. Our AI extracts text and translates complex medical jargon into clear explanations.
           </p>
         </div>
@@ -87,7 +82,7 @@ export function MedicalReportsPage() {
         <Button
           onClick={handleSimulatedUpload}
           disabled={isUploading}
-          className="bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl gap-2 shadow-md"
+          className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl gap-2 shadow-md h-10 text-xs sm:text-sm"
         >
           <UploadCloud className="h-4 w-4" />
           {isUploading ? "Scanning Document..." : "Upload New Report"}
@@ -98,25 +93,25 @@ export function MedicalReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Report List Column */}
         <div className="space-y-3">
-          <h2 className="text-base font-bold text-foreground flex items-center gap-2 mb-2">
+          <h2 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2 mb-2">
             <Tag className="h-4 w-4 text-teal-600" /> Archived Medical Records
           </h2>
           {reports.map((rep, idx) => (
             <div
               key={idx}
               onClick={() => setSelectedReport(idx)}
-              className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+              className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer ${
                 selectedReport === idx
                   ? "bg-teal-500/15 border-teal-500/40 shadow-xs"
                   : "bg-card hover:border-teal-500/30"
               }`}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <Badge variant={rep.statusVariant as any}>{rep.status}</Badge>
-                <span className="text-[11px] text-muted-foreground">{rep.date}</span>
+                <span className="text-[10px] sm:text-[11px] text-muted-foreground">{rep.date}</span>
               </div>
-              <h3 className="text-sm font-bold text-foreground mt-2">{rep.title}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{rep.doctor} • {rep.type}</p>
+              <h3 className="text-xs sm:text-sm font-bold text-foreground mt-2">{rep.title}</h3>
+              <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{rep.doctor} • {rep.type}</p>
             </div>
           ))}
         </div>
@@ -124,34 +119,34 @@ export function MedicalReportsPage() {
         {/* OCR & AI Summary Viewer */}
         <Card className="lg:col-span-2 p-2 border-teal-500/30">
           <CardHeader className="pb-3 border-b">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <CardTitle className="text-lg">{active.title}</CardTitle>
+                <CardTitle className="text-base sm:text-lg">{active.title}</CardTitle>
                 <CardDescription className="text-xs">
                   {active.type} • Prescribed by {active.doctor} ({active.date})
                 </CardDescription>
               </div>
-              <Button variant="outline" size="sm" className="rounded-xl gap-1.5 text-xs">
-                <Download className="h-3.5 w-3.5" /> Download Summary PDF
+              <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-xl gap-1.5 text-xs h-9">
+                <Download className="h-3.5 w-3.5 text-teal-600" /> Download Summary PDF
               </Button>
             </div>
           </CardHeader>
 
-          <CardContent className="space-y-6 pt-4">
+          <CardContent className="space-y-4 sm:space-y-6 pt-4">
             {/* AI Plain-Language Explanation */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-cyan-500/10 to-transparent border border-teal-500/30 space-y-2">
-              <div className="flex items-center gap-2 text-sm font-bold text-teal-700 dark:text-teal-300">
-                <Sparkles className="h-4 w-4 text-teal-500" /> AI Plain-Language Translation
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-cyan-500/10 to-transparent border border-teal-500/30 space-y-2">
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-teal-700 dark:text-teal-300">
+                <Sparkles className="h-4 w-4 text-teal-500 shrink-0" /> AI Plain-Language Translation
               </div>
-              <p className="text-sm text-foreground leading-relaxed">{active.aiSummary}</p>
+              <p className="text-xs sm:text-sm text-foreground leading-relaxed">{active.aiSummary}</p>
             </div>
 
             {/* Extracted Raw OCR Text */}
             <div className="space-y-2">
               <h4 className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1.5">
-                <FileCode className="h-4 w-4 text-teal-600" /> Extracted OCR Text (Google Cloud Vision)
+                <FileCode className="h-4 w-4 text-teal-600 shrink-0" /> Extracted OCR Text (Google Cloud Vision)
               </h4>
-              <div className="p-4 rounded-2xl bg-muted/60 border font-mono text-xs text-foreground leading-relaxed">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-muted/60 border font-mono text-[11px] sm:text-xs text-foreground leading-relaxed overflow-x-auto break-words">
                 {active.ocrText}
               </div>
             </div>
