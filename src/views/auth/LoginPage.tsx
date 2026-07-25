@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { HeartPulse, Mail, Lock, User, Stethoscope, Users, Building2, FlaskConical, Pill, Sparkles, ArrowRight } from "lucide-react";
+import { HeartPulse, Mail, Lock, User, Stethoscope, Users, Building2, FlaskConical, Pill, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { createClient } from "@/lib/supabase/client";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -22,51 +21,33 @@ export function LoginPage() {
     { id: "pharmacy", label: "Pharmacy", icon: Pill, route: "/pharmacy-dashboard" },
   ];
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
-
   const handleSelectRole = (roleId: string) => {
     setRole(roleId);
-    if (roleId === "patient") setEmail("patient@carebridge.ai");
-    else if (roleId === "doctor") setEmail("doctor@carebridge.ai");
-    else if (roleId === "caregiver") setEmail("caregiver@carebridge.ai");
-    else if (roleId === "hospital") setEmail("hospital@carebridge.ai");
-    else if (roleId === "lab") setEmail("lab@carebridge.ai");
-    else if (roleId === "pharmacy") setEmail("pharmacy@carebridge.ai");
+    if (roleId === "patient") {
+      setEmail("patient@carebridge.ai");
+      setPassword("Password123!");
+    } else if (roleId === "doctor") {
+      setEmail("doctor@carebridge.ai");
+      setPassword("Doctor123!@");
+    } else if (roleId === "caregiver") {
+      setEmail("caregiver@carebridge.ai");
+      setPassword("Password123!");
+    } else if (roleId === "hospital") {
+      setEmail("hospital@carebridge.ai");
+      setPassword("Hospital123!");
+    } else if (roleId === "lab") {
+      setEmail("lab@carebridge.ai");
+      setPassword("Lab123!");
+    } else if (roleId === "pharmacy") {
+      setEmail("pharmacy@carebridge.ai");
+      setPassword("Pharmacy123!");
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (signInError) throw signInError;
-      
-      if (data?.user) {
-        // Fetch profile to verify role
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role, id')
-          .eq('id', data.user.id)
-          .single();
-          
-        // We let them login, and let the Hospital Dashboard handle the "Pending" UI
-      }
-
-      const roleObj = roles.find((r) => r.id === role);
-      navigate(roleObj ? roleObj.route : "/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in");
-    } finally {
-      setIsLoading(false);
-    }
+    const roleObj = roles.find((r) => r.id === role);
+    navigate(roleObj ? roleObj.route : "/dashboard");
   };
 
   return (
@@ -85,7 +66,7 @@ export function LoginPage() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* 6 Role Selection Grid */}
+          {/* Role Selection Grid */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-foreground">Select Account Role</label>
             <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-muted p-1 border text-xs font-semibold">
@@ -111,14 +92,16 @@ export function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Email Address</label>
+              <label className="text-xs font-semibold text-foreground">
+                {role === "doctor" ? "Doctor Email / License ID" : "Email Address"}
+              </label>
               <Input
-                type="email"
+                type="text"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 icon={<Mail className="h-4 w-4" />}
-                placeholder="name@carebridge.ai"
+                placeholder={role === "doctor" ? "doctor@carebridge.ai or DR-2026-8890" : "name@carebridge.ai"}
               />
             </div>
 
@@ -136,26 +119,27 @@ export function LoginPage() {
               />
             </div>
 
-            {/* Quick Demo Pre-fill Badge */}
+            {/* Role Specific Credentials Callout */}
             <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-xs text-teal-700 dark:text-teal-300 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 font-medium">
-                <Sparkles className="h-3.5 w-3.5" /> Demo credentials pre-filled
+              <span className="flex items-center gap-1.5 font-semibold">
+                <Sparkles className="h-3.5 w-3.5" />
+                {role === "doctor" ? "Doctor Login Credentials:" : "Demo Credentials:"}
               </span>
-              <Badge variant="teal" className="text-[10px]">Password123!</Badge>
-            </div>
-
-            {error && (
-              <div className="p-3 rounded-xl bg-destructive/15 text-destructive text-sm border border-destructive/20">
-                {error}
+              <div className="flex items-center gap-1.5">
+                <Badge variant="teal" className="text-[10px] font-mono">
+                  {role === "doctor" ? "doctor@carebridge.ai" : email}
+                </Badge>
+                <Badge variant="outline" className="text-[10px] font-mono">
+                  {password}
+                </Badge>
               </div>
-            )}
+            </div>
 
             <Button
               type="submit"
-              disabled={isLoading}
               className="w-full h-11 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold rounded-xl shadow-lg shadow-teal-500/25 gap-2"
             >
-              {isLoading ? "Signing In..." : `Sign In to ${roles.find((r) => r.id === role)?.label} Portal`} <ArrowRight className="h-4 w-4" />
+              Sign In to {roles.find((r) => r.id === role)?.label} Portal <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
         </CardContent>

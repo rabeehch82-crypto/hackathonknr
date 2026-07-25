@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { HeartPulse, Mail, Lock, User, Stethoscope, Users, ArrowRight, ShieldCheck, Building2 } from "lucide-react";
+import { HeartPulse, Mail, Lock, User, Stethoscope, Users, ArrowRight, ShieldCheck, Building2, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
@@ -8,11 +8,15 @@ import { createClient } from "@/lib/supabase/client";
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const [role, setRole] = useState<"patient" | "doctor" | "caregiver" | "hospital_admin">("patient");
+  const [role, setRole] = useState<"patient" | "doctor" | "caregiver" | "hospital_admin">("doctor");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
+  // Doctor specific fields
+  const [doctorLicense, setDoctorLicense] = useState("");
+  const [specialty, setSpecialty] = useState("Cardiology");
+
   // Hospital specific fields
   const [hospitalName, setHospitalName] = useState("");
   const [city, setCity] = useState("");
@@ -36,6 +40,10 @@ export function RegisterPage() {
           data: {
             full_name: fullName,
             role: role,
+            ...(role === 'doctor' && {
+              license_number: doctorLicense || "DR-2026-8890",
+              specialty,
+            }),
             ...(role === 'hospital_admin' && {
               hospital_name: hospitalName,
               city,
@@ -51,9 +59,6 @@ export function RegisterPage() {
       if (role === "doctor") {
         navigate("/doctor-dashboard");
       } else if (role === "hospital_admin") {
-        // We'll let the ProtectedRoute or LoginPage handle bouncing them if pending, 
-        // but normally they would go to login or be automatically logged in and then bounced.
-        // If they are auto-logged in, navigate to hospital dashboard so the guard kicks in.
         navigate("/hospital-dashboard");
       } else {
         navigate("/dashboard");
@@ -86,21 +91,21 @@ export function RegisterPage() {
             <div className="grid grid-cols-4 gap-1 rounded-xl bg-muted p-1 border text-xs font-semibold">
               <button
                 type="button"
-                onClick={() => setRole("patient")}
-                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all ${
-                  role === "patient" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <User className="h-4 w-4" /> Patient
-              </button>
-              <button
-                type="button"
                 onClick={() => setRole("doctor")}
                 className={`flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all ${
                   role === "doctor" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Stethoscope className="h-4 w-4" /> Doctor
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("patient")}
+                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all ${
+                  role === "patient" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <User className="h-4 w-4" /> Patient
               </button>
               <button
                 type="button"
@@ -124,16 +129,9 @@ export function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {role === "hospital_admin" && (
-              <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-xs mb-4">
-                <strong className="text-teal-700 block mb-1">🏥 Hospital Registration</strong>
-                Your facility will remain in a "Pending Verification" state and you will not be able to access the dashboard until the Super Admin approves your license.
-              </div>
-            )}
-
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">
-                {role === "hospital_admin" ? "Admin Full Name" : "Full Name"}
+                {role === "doctor" ? "Doctor Full Name" : role === "hospital_admin" ? "Admin Full Name" : "Full Name"}
               </label>
               <Input
                 type="text"
@@ -141,9 +139,39 @@ export function RegisterPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 icon={<User className="h-4 w-4" />}
-                placeholder="e.g. Eleanor Vance"
+                placeholder={role === "doctor" ? "e.g. Dr. Sarah Jenkins" : "e.g. Eleanor Vance"}
               />
             </div>
+
+            {role === "doctor" && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">Doctor License ID</label>
+                  <Input
+                    type="text"
+                    required
+                    value={doctorLicense}
+                    onChange={(e) => setDoctorLicense(e.target.value)}
+                    icon={<Award className="h-4 w-4" />}
+                    placeholder="DR-2026-8890"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">Specialty</label>
+                  <select
+                    value={specialty}
+                    onChange={(e) => setSpecialty(e.target.value)}
+                    className="w-full h-10 rounded-xl border bg-background px-3 text-xs"
+                  >
+                    <option>Cardiology</option>
+                    <option>Pulmonology</option>
+                    <option>Endocrinology</option>
+                    <option>General Medicine</option>
+                    <option>Neurology</option>
+                  </select>
+                </div>
+              </div>
+            )}
 
             {role === "hospital_admin" && (
               <>
@@ -178,28 +206,18 @@ export function RegisterPage() {
                     />
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">License Number</label>
-                  <Input
-                    type="text"
-                    required
-                    value={license}
-                    onChange={(e) => setLicense(e.target.value)}
-                    placeholder="e.g. HOSP-12345"
-                  />
-                </div>
               </>
             )}
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Email Address</label>
+              <label className="text-xs font-semibold text-foreground">Doctor Email Address</label>
               <Input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 icon={<Mail className="h-4 w-4" />}
-                placeholder="name@example.com"
+                placeholder="doctor@carebridge.ai"
               />
             </div>
 
@@ -211,7 +229,7 @@ export function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 icon={<Lock className="h-4 w-4" />}
-                placeholder="••••••••"
+                placeholder="Doctor123!@"
               />
             </div>
 
@@ -231,7 +249,7 @@ export function RegisterPage() {
               disabled={isLoading}
               className="w-full h-11 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-bold rounded-xl shadow-lg shadow-teal-500/25 gap-2"
             >
-              {isLoading ? "Creating Account..." : "Create Account"} <ArrowRight className="h-4 w-4" />
+              {isLoading ? "Creating Doctor Account..." : "Create Doctor Account"} <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
         </CardContent>
