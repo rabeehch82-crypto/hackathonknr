@@ -14,7 +14,9 @@ import {
   Mic,
   Activity,
   QrCode,
-  Volume2,
+  Building2,
+  Stethoscope,
+  FlaskConical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
@@ -86,7 +88,7 @@ export function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background selection:bg-teal-500/20">
-      {/* Top Banner */}
+      {/* Top Announcement Banner */}
       <div className="bg-gradient-to-r from-teal-700 via-teal-600 to-cyan-600 text-white text-center py-2 px-4 text-xs font-semibold flex items-center justify-center gap-2">
         <Sparkles className="h-4 w-4 animate-spin" style={{ animationDuration: "5s" }} />
         <span>Senior-Friendly AI Healthcare Coordination Platform — Powered by Supabase & OpenAI</span>
@@ -119,77 +121,106 @@ export function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16 pb-24 md:pt-24 md:pb-32">
-        {/* Glow background blobs */}
+      {/* Hero Section with High-Resolution Image */}
+      <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-tr from-teal-500/20 via-cyan-500/20 to-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center max-w-4xl">
-          <Badge variant="teal" className="mb-6 px-4 py-1 text-xs font-semibold uppercase tracking-widest gap-1.5">
-            <Sparkles className="h-3.5 w-3.5" /> Next-Gen AI Senior Healthcare Assistant
-          </Badge>
-
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl leading-tight text-foreground">
-            Smarter Health Care for <br className="hidden sm:inline" />
-            <span className="gradient-heading">Seniors & Families</span>
-          </h1>
-
-          <p className="mt-6 text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            CareBridge AI combines voice-activated symptom triage, instant medical report OCR summaries, smart medication reminders, and 24/7 caregiver coordination in one accessible app.
-          </p>
-
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/dashboard" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto h-13 px-8 text-base font-bold bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-2xl shadow-xl shadow-teal-500/25 gap-2">
-                Open Patient Dashboard <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/ai-assistant" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto h-13 px-8 text-base font-semibold rounded-2xl border-teal-500/30 hover:bg-teal-500/10 gap-2">
-                <Bot className="h-5 w-5 text-teal-600" /> Try AI Symptom Assistant
-              </Button>
-            </Link>
-          </div>
-
-          {/* Interactive AI Query Box Demo */}
-          <div className="mt-14 max-w-2xl mx-auto p-4 sm:p-6 rounded-3xl border glass-card shadow-2xl text-left">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-teal-500 animate-ping" />
-                <span className="text-xs font-semibold text-teal-700 dark:text-teal-300 uppercase tracking-wider">
-                  Live AI Health Assistant Demo
-                </span>
-              </div>
-              <Badge variant="outline" className="gap-1 text-[11px]">
-                <Mic className="h-3 w-3 text-teal-500" /> Voice Ready
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Copy */}
+            <div className="lg:col-span-7 text-center lg:text-left">
+              <Badge variant="teal" className="mb-6 px-4 py-1 text-xs font-semibold uppercase tracking-widest gap-1.5">
+                <Sparkles className="h-3.5 w-3.5" /> Next-Gen AI Senior Healthcare Assistant
               </Badge>
+
+              <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-6xl leading-tight text-foreground">
+                Smarter Health Care for <br className="hidden sm:inline" />
+                <span className="gradient-heading">Seniors & Families</span>
+              </h1>
+
+              <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
+                CareBridge AI combines voice-activated symptom triage, instant medical report OCR summaries, smart medication reminders, and 24/7 caregiver coordination in one accessible app.
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <Link to="/dashboard" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto h-13 px-8 text-base font-bold bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-2xl shadow-xl shadow-teal-500/25 gap-2">
+                    Open Patient Dashboard <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link to="/ai-assistant" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto h-13 px-8 text-base font-semibold rounded-2xl border-teal-500/30 hover:bg-teal-500/10 gap-2">
+                    <Bot className="h-5 w-5 text-teal-600" /> Try AI Symptom Assistant
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Interactive AI Query Box */}
+              <div className="mt-10 p-4 sm:p-5 rounded-3xl border glass-card shadow-xl text-left max-w-xl mx-auto lg:mx-0">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-teal-500 animate-ping" />
+                    <span className="text-xs font-semibold text-teal-700 dark:text-teal-300 uppercase tracking-wider">
+                      Live AI Assistant Teaser
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="gap-1 text-[10px]">
+                    <Mic className="h-3 w-3 text-teal-500" /> Voice Ready
+                  </Badge>
+                </div>
+
+                <form onSubmit={handleDemoSubmit} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Ask e.g. 'I feel dizzy and skipped my morning pill...'"
+                    value={demoQuery}
+                    onChange={(e) => setDemoQuery(e.target.value)}
+                    className="flex-1 rounded-xl border border-input bg-background/70 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
+                  <Button type="submit" disabled={isAnalyzing} className="bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl px-4">
+                    {isAnalyzing ? "Analyzing..." : "Ask AI"}
+                  </Button>
+                </form>
+
+                {demoResponse && (
+                  <div className="mt-3 p-3 rounded-xl bg-teal-500/15 border border-teal-500/30 text-xs text-foreground animate-in fade-in duration-300">
+                    <div className="flex items-center gap-2 font-semibold text-teal-700 dark:text-teal-300 mb-1">
+                      <Bot className="h-4 w-4" /> AI Healthcare Response:
+                    </div>
+                    <p className="leading-relaxed">{demoResponse}</p>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <form onSubmit={handleDemoSubmit} className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Ask e.g. 'I feel lightheaded and skipped my morning blood pressure pill...'"
-                value={demoQuery}
-                onChange={(e) => setDemoQuery(e.target.value)}
-                className="flex-1 rounded-xl border border-input bg-background/70 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-              <Button type="submit" disabled={isAnalyzing} className="bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl px-5">
-                {isAnalyzing ? "Analyzing..." : "Ask AI"}
-              </Button>
-            </form>
+            {/* Right Hero Image Card */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative mx-auto max-w-md lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border-4 border-white/40 dark:border-white/10 group">
+                <img
+                  src="/images/carebridge_senior_hero.png"
+                  alt="Senior Patient using CareBridge AI with Doctor"
+                  className="w-full h-[480px] object-cover transition-transform duration-700 group-hover:scale-105"
+                />
 
-            {demoResponse && (
-              <div className="mt-4 p-4 rounded-xl bg-teal-500/15 border border-teal-500/30 text-sm text-foreground animate-in fade-in duration-300">
-                <div className="flex items-center gap-2 font-semibold text-teal-700 dark:text-teal-300 mb-1">
-                  <Bot className="h-4 w-4" /> AI Healthcare Response:
+                {/* Floating Glassmorphism Vitals Card Overlay */}
+                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl glass-card border border-white/30 backdrop-blur-md shadow-2xl flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500 text-white shadow-md">
+                      <Activity className="h-5 w-5 animate-pulse" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-foreground">Health Score: 88/100</h4>
+                      <p className="text-[10px] text-emerald-600 font-semibold">Vitals & Pills Synced Live</p>
+                    </div>
+                  </div>
+                  <Badge variant="teal">Verified</Badge>
                 </div>
-                <p className="leading-relaxed">{demoResponse}</p>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Key Metrics */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-border/50">
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-border/50 text-center">
             <div>
               <div className="text-3xl font-extrabold text-teal-600">99.4%</div>
               <div className="text-xs text-muted-foreground mt-1 font-medium">Medication Adherence</div>
@@ -210,18 +241,105 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Visual Feature Showcase with Real Medical Images */}
+      <section className="py-20 bg-muted/30 border-t border-border/50">
+        <div className="container mx-auto px-4 sm:px-6 space-y-16">
+          {/* Feature 1: Doctor Telehealth */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-6 order-2 md:order-1 space-y-4">
+              <Badge variant="teal" className="gap-1">
+                <Stethoscope className="h-3.5 w-3.5" /> Clinical Network
+              </Badge>
+              <h2 className="text-3xl font-extrabold text-foreground tracking-tight">
+                Seamless Doctor & Telehealth Consultations
+              </h2>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Connect directly with board-certified physicians and specialists. Review digital prescriptions, share vital logs in real-time, and schedule virtual video calls without long waiting lines.
+              </p>
+              <ul className="space-y-2 text-xs font-semibold text-foreground">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-teal-600" /> Double-booking prevention & automatic calendar sync
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-teal-600" /> Digital Rx written directly into patient pharmacy queue
+                </li>
+              </ul>
+              <Link to="/appointments" className="inline-block pt-2">
+                <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold gap-1.5">
+                  Book Telehealth Appointment &rarr;
+                </Button>
+              </Link>
+            </div>
+
+            <div className="md:col-span-6 order-1 md:order-2">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/40 dark:border-white/10 group">
+                <img
+                  src="/images/carebridge_doctor_telehealth.png"
+                  alt="Doctor Telehealth Consultation"
+                  className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 shadow-md">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Doctor Verified
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature 2: Vision OCR Diagnostic Lab */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-6">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/40 dark:border-white/10 group">
+                <img
+                  src="/images/carebridge_lab_ocr.png"
+                  alt="Lab Diagnostic OCR Scanning"
+                  className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 shadow-md">
+                  <Sparkles className="h-4 w-4 text-cyan-500" /> Google Vision OCR Active
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-6 space-y-4">
+              <Badge variant="teal" className="gap-1">
+                <FlaskConical className="h-3.5 w-3.5" /> AI Medical OCR
+              </Badge>
+              <h2 className="text-3xl font-extrabold text-foreground tracking-tight">
+                Instant Diagnostic Report Translation
+              </h2>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Snap a photo of any printed lab test, blood panel, or radiology summary. CareBridge AI extracts text instantly using computer vision and translates medical jargon into plain senior-friendly summaries.
+              </p>
+              <ul className="space-y-2 text-xs font-semibold text-foreground">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-teal-600" /> Flags out-of-range cholesterol, HbA1c, and vitals
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-teal-600" /> Side-by-side original scanned sheet & plain English translation
+                </li>
+              </ul>
+              <Link to="/medical-reports" className="inline-block pt-2">
+                <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold gap-1.5">
+                  Try Medical Report OCR Scanner &rarr;
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Feature Grid */}
-      <section className="py-20 bg-muted/40 border-y border-border/50">
+      <section className="py-20 bg-background border-t border-border/50">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <Badge variant="teal" className="mb-3">
-              Comprehensive Platform
+              Comprehensive Suite
             </Badge>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-              Everything You Need for Senior Care
+              Everything You Need for Senior Healthcare
             </h2>
-            <p className="mt-4 text-muted-foreground">
-              Designed specifically to be intuitive, accessible, and crystal-clear for patients and healthcare providers alike.
+            <p className="mt-4 text-muted-foreground text-sm">
+              Designed specifically to be intuitive, accessible, and crystal-clear for patients, doctors, and family caregivers alike.
             </p>
           </div>
 
