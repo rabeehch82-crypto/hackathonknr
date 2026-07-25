@@ -36,10 +36,17 @@ export function SuperAdminPage() {
 
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Custom auth for Super Admin
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authCode, setAuthCode] = useState("");
+  const [authError, setAuthError] = useState("");
 
   useEffect(() => {
-    fetchHospitals();
-  }, []);
+    if (isAuthenticated) {
+      fetchHospitals();
+    }
+  }, [isAuthenticated]);
 
   const fetchHospitals = async () => {
     try {
@@ -112,10 +119,66 @@ export function SuperAdminPage() {
 
   const filteredHospitals = hospitals.filter(
     (h) =>
-      h.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      h.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      h.license_number?.toLowerCase().includes(searchQuery.toLowerCase())
+      h.status === "Pending Verification" && (
+        h.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        h.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        h.license_number?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
   );
+
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (authCode === "123456") {
+      setIsAuthenticated(true);
+      setAuthError("");
+    } else {
+      setAuthError("Invalid Super Admin access code.");
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col min-h-[70vh] items-center justify-center p-4 animate-in fade-in zoom-in duration-300">
+        <Card className="w-full max-w-md shadow-2xl glass-card border-teal-500/30 text-center">
+          <CardHeader className="space-y-4">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-teal-600 to-cyan-400 text-white shadow-md shadow-teal-500/30">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+            <CardTitle className="text-2xl font-bold">Super Admin Access</CardTitle>
+            <CardDescription className="text-sm">
+              Please enter your master access code to continue.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAuthSubmit} className="space-y-4">
+              <div className="space-y-1.5 text-left">
+                <label className="text-xs font-semibold text-foreground">Access Code</label>
+                <Input
+                  type="password"
+                  required
+                  value={authCode}
+                  onChange={(e) => setAuthCode(e.target.value)}
+                  placeholder="Enter 6-digit code"
+                  className="text-center tracking-widest text-lg"
+                  autoFocus
+                />
+              </div>
+              
+              {authError && (
+                <div className="p-3 rounded-xl bg-destructive/15 text-destructive text-sm border border-destructive/20">
+                  {authError}
+                </div>
+              )}
+
+              <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold h-11 rounded-xl shadow-md">
+                Verify Access
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
