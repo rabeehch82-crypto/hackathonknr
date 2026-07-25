@@ -11,14 +11,10 @@ import {
   FlaskConical,
   Pill,
   Users,
+  ShieldCheck,
   ChevronDown,
   Menu,
   X,
-  LayoutDashboard,
-  Bot,
-  FileText,
-  Calendar,
-  Settings,
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,6 +48,7 @@ export function Navbar() {
     { label: "Hospital Portal", href: "/hospital-dashboard", icon: Building2, badge: "Hospital" },
     { label: "Lab Diagnostic Portal", href: "/lab-dashboard", icon: FlaskConical, badge: "Lab" },
     { label: "Pharmacy Portal", href: "/pharmacy-dashboard", icon: Pill, badge: "Rx Supply" },
+    { label: "Super Admin Panel", href: "/admin-dashboard", icon: ShieldCheck, badge: "Master" },
   ];
 
   const currentRoleObj = roles.find((r) => location.pathname === r.href) || roles[0];

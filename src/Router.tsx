@@ -17,6 +17,7 @@ import { DoctorDashboardPage } from "./views/dashboard/DoctorDashboardPage";
 import { HospitalDashboardPage } from "./views/dashboard/HospitalDashboardPage";
 import { LabDashboardPage } from "./views/dashboard/LabDashboardPage";
 import { PharmacyDashboardPage } from "./views/dashboard/PharmacyDashboardPage";
+import { SuperAdminPage } from "./views/dashboard/SuperAdminPage";
 import { SettingsPage } from "./views/dashboard/SettingsPage";
 
 export default function AppRouter() {
@@ -35,6 +36,7 @@ export default function AppRouter() {
           <Route path="/hospital-dashboard" element={<HospitalDashboardPage />} />
           <Route path="/lab-dashboard" element={<LabDashboardPage />} />
           <Route path="/pharmacy-dashboard" element={<PharmacyDashboardPage />} />
+          <Route path="/admin-dashboard" element={<SuperAdminPage />} />
           <Route path="/ai-assistant" element={<AIAssistantPage />} />
           <Route path="/medical-reports" element={<MedicalReportsPage />} />
           <Route path="/appointments" element={<AppointmentsPage />} />

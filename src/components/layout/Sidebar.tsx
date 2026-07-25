@@ -10,6 +10,7 @@ import {
   Stethoscope,
   Building2,
   FlaskConical,
+  ShieldCheck,
   QrCode,
   Sparkles,
 } from "lucide-react";
@@ -25,6 +26,7 @@ export function Sidebar() {
       items: [
         { label: "Patient Dashboard", href: "/dashboard", icon: LayoutDashboard, badge: null },
         { label: "Doctor Portal", href: "/doctor-dashboard", icon: Stethoscope, badge: "Clinical" },
+        { label: "Super Admin Panel", href: "/admin-dashboard", icon: ShieldCheck, badge: "Master" },
       ],
     },
     {
@@ -93,7 +95,7 @@ export function Sidebar() {
                       </div>
                       {item.badge && (
                         <Badge
-                          variant={item.badge === "GPT-4o" || item.badge === "OCR" ? "teal" : "outline"}
+                          variant={item.badge === "GPT-4o" || item.badge === "Master" ? "teal" : "outline"}
                           className="text-[9px] px-1.5 py-0"
                         >
                           {item.badge}
