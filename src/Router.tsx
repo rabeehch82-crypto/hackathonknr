@@ -14,6 +14,9 @@ import { AppointmentsPage } from "./views/dashboard/AppointmentsPage";
 import { MedicineReminderPage } from "./views/dashboard/MedicineReminderPage";
 import { CaregiverPage } from "./views/dashboard/CaregiverPage";
 import { DoctorDashboardPage } from "./views/dashboard/DoctorDashboardPage";
+import { HospitalDashboardPage } from "./views/dashboard/HospitalDashboardPage";
+import { LabDashboardPage } from "./views/dashboard/LabDashboardPage";
+import { PharmacyDashboardPage } from "./views/dashboard/PharmacyDashboardPage";
 import { SettingsPage } from "./views/dashboard/SettingsPage";
 
 export default function AppRouter() {
@@ -29,6 +32,9 @@ export default function AppRouter() {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/doctor-dashboard" element={<DoctorDashboardPage />} />
+          <Route path="/hospital-dashboard" element={<HospitalDashboardPage />} />
+          <Route path="/lab-dashboard" element={<LabDashboardPage />} />
+          <Route path="/pharmacy-dashboard" element={<PharmacyDashboardPage />} />
           <Route path="/ai-assistant" element={<AIAssistantPage />} />
           <Route path="/medical-reports" element={<MedicalReportsPage />} />
           <Route path="/appointments" element={<AppointmentsPage />} />
