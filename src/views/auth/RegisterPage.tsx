@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { HeartPulse, Mail, Lock, User, Stethoscope, Users, ArrowRight, ShieldCheck } from "lucide-react";
+import { HeartPulse, Mail, Lock, User, Stethoscope, Users, ArrowRight, ShieldCheck, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
@@ -8,10 +8,16 @@ import { createClient } from "@/lib/supabase/client";
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const [role, setRole] = useState<"patient" | "doctor" | "caregiver">("patient");
+  const [role, setRole] = useState<"patient" | "doctor" | "caregiver" | "hospital_admin">("patient");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  // Hospital specific fields
+  const [hospitalName, setHospitalName] = useState("");
+  const [city, setCity] = useState("");
+  const [license, setLicense] = useState("");
+  const [beds, setBeds] = useState("100");
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,15 +36,25 @@ export function RegisterPage() {
           data: {
             full_name: fullName,
             role: role,
+            ...(role === 'hospital_admin' && {
+              hospital_name: hospitalName,
+              city,
+              license_number: license,
+              beds,
+            })
           }
         }
       });
       
       if (signUpError) throw signUpError;
       
-      // Usually users need to verify email, but we'll redirect them for now
       if (role === "doctor") {
         navigate("/doctor-dashboard");
+      } else if (role === "hospital_admin") {
+        // We'll let the ProtectedRoute or LoginPage handle bouncing them if pending, 
+        // but normally they would go to login or be automatically logged in and then bounced.
+        // If they are auto-logged in, navigate to hospital dashboard so the guard kicks in.
+        navigate("/hospital-dashboard");
       } else {
         navigate("/dashboard");
       }
@@ -67,40 +83,58 @@ export function RegisterPage() {
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-foreground">Select Profile Role</label>
-            <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1 border text-xs font-semibold">
+            <div className="grid grid-cols-4 gap-1 rounded-xl bg-muted p-1 border text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setRole("patient")}
-                className={`flex items-center justify-center gap-1 py-2 rounded-lg transition-all ${
+                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all ${
                   role === "patient" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <User className="h-3.5 w-3.5" /> Patient
+                <User className="h-4 w-4" /> Patient
               </button>
               <button
                 type="button"
                 onClick={() => setRole("doctor")}
-                className={`flex items-center justify-center gap-1 py-2 rounded-lg transition-all ${
+                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all ${
                   role === "doctor" ? "bg-teal-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Stethoscope className="h-3.5 w-3.5" /> Doctor
+                <Stethoscope className="h-4 w-4" /> Doctor
               </button>
               <button
                 type="button"
                 onClick={() => setRole("caregiver")}
-                className={`flex items-center justify-center gap-1 py-2 rounded-lg transition-all ${
+                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all ${
                   role === "caregiver" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Users className="h-3.5 w-3.5" /> Caregiver
+                <Users className="h-4 w-4" /> Caregiver
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("hospital_admin")}
+                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all ${
+                  role === "hospital_admin" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Building2 className="h-4 w-4" /> Hospital
               </button>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {role === "hospital_admin" && (
+              <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-xs mb-4">
+                <strong className="text-teal-700 block mb-1">🏥 Hospital Registration</strong>
+                Your facility will remain in a "Pending Verification" state and you will not be able to access the dashboard until the Super Admin approves your license.
+              </div>
+            )}
+
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Full Name</label>
+              <label className="text-xs font-semibold text-foreground">
+                {role === "hospital_admin" ? "Admin Full Name" : "Full Name"}
+              </label>
               <Input
                 type="text"
                 required
@@ -110,6 +144,52 @@ export function RegisterPage() {
                 placeholder="e.g. Eleanor Vance"
               />
             </div>
+
+            {role === "hospital_admin" && (
+              <>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">Hospital Name</label>
+                  <Input
+                    type="text"
+                    required
+                    value={hospitalName}
+                    onChange={(e) => setHospitalName(e.target.value)}
+                    icon={<Building2 className="h-4 w-4" />}
+                    placeholder="e.g. CareBridge General Hospital"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground">City</label>
+                    <Input
+                      type="text"
+                      required
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground">Capacity (Beds)</label>
+                    <Input
+                      type="number"
+                      required
+                      value={beds}
+                      onChange={(e) => setBeds(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">License Number</label>
+                  <Input
+                    type="text"
+                    required
+                    value={license}
+                    onChange={(e) => setLicense(e.target.value)}
+                    placeholder="e.g. HOSP-12345"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Email Address</label>

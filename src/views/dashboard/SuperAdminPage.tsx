@@ -17,12 +17,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
+import { useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { createClient } from "@/lib/supabase/client";
 
 export function SuperAdminPage() {
   const [showAddHospitalModal, setShowAddHospitalModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const supabase = createClient();
 
   const [newHospital, setNewHospital] = useState({
     name: "",
@@ -31,55 +34,87 @@ export function SuperAdminPage() {
     beds: "100",
   });
 
-  const [hospitals, setHospitals] = useState([
-    { id: "h1", name: "St. Jude Memorial Hospital", city: "New York, NY", status: "Verified", variant: "success", license: "HOSP-9908", beds: 120 },
-    { id: "h2", name: "Metro Care Medical Center", city: "Boston, MA", status: "Pending Verification", variant: "warning", license: "HOSP-7761", beds: 250 },
-    { id: "h3", name: "Sun Valley Health Clinic", city: "Phoenix, AZ", status: "Pending Verification", variant: "warning", license: "HOSP-4432", beds: 80 },
-    { id: "h4", name: "Apex Specialty Surgical Center", city: "Chicago, IL", status: "Verified", variant: "success", license: "HOSP-1102", beds: 150 },
-    { id: "h5", name: "Green Valley Community Hospital", city: "Seattle, WA", status: "Pending Verification", variant: "warning", license: "HOSP-5590", beds: 95 },
-  ]);
+  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHospitals();
+  }, []);
+
+  const fetchHospitals = async () => {
+    try {
+      const { data, error } = await supabase.from('hospitals').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      setHospitals(data || []);
+    } catch (err: any) {
+      showToast("Error loading hospitals: " + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleVerifyHospital = (id: string, action: "verify" | "reject" | "revoke") => {
-    setHospitals((prev) =>
-      prev.map((h) => {
-        if (h.id !== id) return h;
-        if (action === "verify") return { ...h, status: "Verified", variant: "success" };
-        if (action === "reject") return { ...h, status: "Rejected", variant: "destructive" };
-        return { ...h, status: "Pending Verification", variant: "warning" };
-      })
-    );
-    const hospName = hospitals.find((h) => h.id === id)?.name;
-    showToast(`${hospName} status updated to: ${action.toUpperCase()}`);
+  const handleVerifyHospital = async (id: string, action: "verify" | "reject" | "revoke") => {
+    let newStatus = "Pending Verification";
+    if (action === "verify") newStatus = "Verified";
+    if (action === "reject") newStatus = "Rejected";
+
+    try {
+      const { error } = await supabase
+        .from('hospitals')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setHospitals((prev) =>
+        prev.map((h) => {
+          if (h.id !== id) return h;
+          return { ...h, status: newStatus };
+        })
+      );
+      const hospName = hospitals.find((h) => h.id === id)?.name;
+      showToast(`${hospName} status updated to: ${newStatus.toUpperCase()}`);
+    } catch (err: any) {
+      showToast("Failed to update status: " + err.message);
+    }
   };
 
-  const handleAddHospitalSubmit = (e: React.FormEvent) => {
+  const handleAddHospitalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newHospital.name || !newHospital.city) return;
-    const added = {
-      id: "h_" + Date.now(),
-      name: newHospital.name,
-      city: newHospital.city,
-      license: newHospital.license || "HOSP-" + Math.floor(1000 + Math.random() * 9000),
-      beds: parseInt(newHospital.beds) || 100,
-      status: "Pending Verification",
-      variant: "warning",
-    };
-    setHospitals((prev) => [added, ...prev]);
-    setShowAddHospitalModal(false);
-    setNewHospital({ name: "", city: "", license: "", beds: "100" });
-    showToast(`${added.name} registered for Super Admin verification!`);
+    
+    try {
+      const { data, error } = await supabase.from('hospitals').insert([{
+        name: newHospital.name,
+        city: newHospital.city,
+        license_number: newHospital.license || "HOSP-" + Math.floor(1000 + Math.random() * 9000),
+        beds: parseInt(newHospital.beds) || 100,
+        status: "Pending Verification",
+      }]).select();
+
+      if (error) throw error;
+
+      if (data && data[0]) {
+        setHospitals((prev) => [data[0], ...prev]);
+        setShowAddHospitalModal(false);
+        setNewHospital({ name: "", city: "", license: "", beds: "100" });
+        showToast(`${data[0].name} registered manually for Super Admin verification!`);
+      }
+    } catch (err: any) {
+      showToast("Failed to add hospital: " + err.message);
+    }
   };
 
   const filteredHospitals = hospitals.filter(
     (h) =>
-      h.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      h.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      h.license.toLowerCase().includes(searchQuery.toLowerCase())
+      h.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      h.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      h.license_number?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -183,7 +218,10 @@ export function SuperAdminPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {filteredHospitals.map((h) => (
+            {filteredHospitals.map((h) => {
+              const variant = h.status === 'Verified' ? 'success' : h.status === 'Rejected' ? 'destructive' : 'warning';
+              
+              return (
               <div
                 key={h.id}
                 className="p-4 rounded-2xl border glass-card flex flex-col md:flex-row md:items-center justify-between gap-4"
@@ -191,13 +229,13 @@ export function SuperAdminPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h4 className="text-sm font-bold text-foreground">{h.name}</h4>
-                    <Badge variant={h.variant as any}>{h.status}</Badge>
+                    <Badge variant={variant as any}>{h.status}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
                     <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-teal-600" /> {h.city}
+                      <MapPin className="h-3 w-3 text-teal-600" /> {h.city || 'Unknown City'}
                     </span>
-                    • License ID: <strong>{h.license}</strong> • Capacity: <strong>{h.beds} Beds</strong>
+                    • License ID: <strong>{h.license_number || 'N/A'}</strong> • Capacity: <strong>{h.beds || 0} Beds</strong>
                   </p>
                 </div>
 
@@ -251,7 +289,8 @@ export function SuperAdminPage() {
                   )}
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </CardContent>
       </Card>

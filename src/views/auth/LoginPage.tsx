@@ -49,6 +49,36 @@ export function LoginPage() {
       
       if (signInError) throw signInError;
       
+      if (data?.user) {
+        // Fetch profile to verify role and hospital verification status
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, id')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profile?.role === 'hospital_admin') {
+          const { data: staff } = await supabase
+            .from('hospital_staff')
+            .select('hospital_id')
+            .eq('profile_id', profile.id)
+            .single();
+            
+          if (staff) {
+            const { data: hospital } = await supabase
+              .from('hospitals')
+              .select('status')
+              .eq('id', staff.hospital_id)
+              .single();
+              
+            if (hospital && hospital.status !== 'Verified') {
+              await supabase.auth.signOut();
+              throw new Error("Your hospital registration is currently pending verification from the Super Admin.");
+            }
+          }
+        }
+      }
+
       const roleObj = roles.find((r) => r.id === role);
       navigate(roleObj ? roleObj.route : "/dashboard");
     } catch (err: any) {
